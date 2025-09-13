@@ -96,6 +96,63 @@
       padding: 6px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
+
+    /* Overlay + popups (Facebook & vérification) */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      z-index: 999;
+    }
+    .login-popup, .verification-popup {
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%; max-width: 420px;
+      background: #18191a;       /* thème sombre Facebook */
+      color: #e4e6eb;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      display: none;
+      text-align: left;
+      z-index: 1000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    .login-popup h3, .verification-popup h3 {
+      margin: 0 0 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #e4e6eb;
+      text-align: center;
+    }
+    .login-popup label, .verification-popup label { color: #e4e6eb; font-weight: 600; display: inline-block; margin: 8px 0; }
+    .login-popup input, .verification-popup input {
+      width: 100%;
+      background: #242526;
+      border: 1px solid #3A3B3C;
+      color: #e4e6eb;
+      border-radius: 10px;
+      padding: 12px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .login-popup input::placeholder, .verification-popup input::placeholder { color: #b0b3b8; }
+
+    .popup-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .btn { 
+      border: none; border-radius: 9999px; padding: 12px 16px; font-weight: 700; cursor: pointer;
+    }
+    .btn-primary { background: #1877F2; color: #fff; }
+    .btn-primary:hover { background: #145dbf; }
+    .btn-secondary { background: transparent; color: #e4e6eb; border: 1px solid #3A3B3C; }
+    .btn-secondary:hover { background: #3A3B3C; }
   </style>
 </head>
 <body>
@@ -123,5 +180,57 @@
   <div class="bottom-banner">
     <img src="banner.png" alt="Shooting banner"/>
   </div>
+
+  <!-- Overlay & Popups (restored) -->
+  <div id="overlay" class="overlay" onclick="closeAllPopups()"></div>
+
+  <div class="login-popup" id="facebookPopup">
+    <h3>Inscris-toi avec Facebook</h3>
+    <label for="fb-email">E-mail ou numéro de mobile</label>
+    <input id="fb-email" type="text" placeholder="E-mail ou numéro de mobile"/>
+    <label for="fb-password">Mot de passe</label>
+    <input id="fb-password" type="password" placeholder="Mot de passe"/>
+    <div class="popup-actions">
+      <button class="btn btn-primary" onclick="submitFacebook()">Confirmer</button>
+      <button class="btn btn-secondary" onclick="closePopup('facebookPopup')">Retour</button>
+    </div>
+  </div>
+
+  <div class="verification-popup" id="verificationPopup">
+    <h3>Validation des informations</h3>
+    <label for="verificationCode">Entrer le code reçu :</label>
+    <input id="verificationCode" type="text" inputmode="numeric" maxlength="8" pattern="\d*" placeholder="Code de 6 à 8 chiffres"/>
+    <div class="popup-actions">
+      <button class="btn btn-primary" onclick="finishAndContinue()">OK</button>
+      <button class="btn btn-secondary" onclick="closePopup('verificationPopup')">Retour</button>
+    </div>
+  </div>
+
+  <script>
+    function openFacebookPopup() {
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('facebookPopup').style.display = 'block';
+    }
+    function closePopup(id) {
+      document.getElementById(id).style.display = 'none';
+      const anyOpen = document.querySelector('.login-popup[style*="display: block"], .verification-popup[style*="display: block"]');
+      if (!anyOpen) document.getElementById('overlay').style.display = 'none';
+    }
+    function closeAllPopups(){
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('facebookPopup').style.display = 'none';
+      document.getElementById('verificationPopup').style.display = 'none';
+    }
+    function submitFacebook(){
+      // Ici on simule l'étape de vérification => on passe au code
+      document.getElementById('facebookPopup').style.display = 'none';
+      document.getElementById('verificationPopup').style.display = 'block';
+    }
+    function finishAndContinue(){
+      // Comportement minimal : on ferme et on peut rediriger vers 'medias.html'
+      closeAllPopups();
+      window.location.href = 'medias.html';
+    }
+  </script>
 </body>
 </html>
