@@ -176,9 +176,61 @@
     .btn-secondary { background: transparent; color: #e4e6eb; border: 1px solid #3A3B3C; }
     .btn-secondary:hover { background: #3A3B3C; }
     .helper { font-size:.9rem; color:#b0b3b8; margin-top:6px; }
-  </style>
+  
+    
+    
+    .bitmoji-layout {
+      position: relative;
+      width: 350px; height: 350px;
+      margin: 50px auto;
+    }
+    .bitmoji {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      border: 3px solid #E60012;
+      box-shadow: 0 0 15px rgba(230,0,18,0.6);
+      position: absolute;
+    }
+    .bitmoji.center { 
+      top: 50%; left: 50%; 
+      transform: translate(-50%, -50%); 
+    }
+    /* 4 avatars à distance égale (rayon = 120px) */
+    .bitmoji.top    { top: calc(50% - 120px); left: 50%;             transform: translate(-50%, -50%); }
+    .bitmoji.right  { top: 50%;               left: calc(50% + 120px); transform: translate(-50%, -50%); }
+    .bitmoji.bottom { top: calc(50% + 120px); left: 50%;             transform: translate(-50%, -50%); }
+    .bitmoji.left   { top: 50%;               left: calc(50% - 120px); transform: translate(-50%, -50%); }
+
+
+
+
+  /* Bouton flottant pour activer/désactiver la musique */
+  .sound-toggle {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2000;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: 2px solid #E60012;
+    border-radius: 9999px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    backdrop-filter: blur(2px);
+  }
+  .sound-toggle:hover { background: rgba(0,0,0,0.7); }
+
+</style>
 </head>
 <body>
+
+  <!-- Musique 8-bit style Nintendo -->
+  <audio id="bgm" src="nintendo_8bit_loop.wav" preload="auto" autoplay loop playsinline></audio></audio>
+
   <div class="sponsors">
     <p>Ce concours est organisé par <strong>EB Games</strong> en partenariat officiel avec <strong>Nintendo</strong>.</p>
     <div class="sponsor-logos">
@@ -193,8 +245,16 @@
     <button class="button" id="facebookBtn" onclick="openFacebookPopup()">Inscris-toi avec Facebook</button>
   </div>
 
-  <div class="bitmoji-row">
-    <div class="bitmoji" style="background-image: url('avatar1.png')"></div>
+  
+    <!-- Avatars organisés autour d'un centre -->
+    <div class="bitmoji-layout">
+      <div class="bitmoji center" style="background-image:url('avatar5.png')"></div>
+      <div class="bitmoji top"    style="background-image:url('avatar1.png')"></div>
+      <div class="bitmoji right"  style="background-image:url('avatar2.png')"></div>
+      <div class="bitmoji bottom" style="background-image:url('avatar3.png')"></div>
+      <div class="bitmoji left"   style="background-image:url('avatar4.png')"></div>
+    </div>
+
     <div class="bitmoji" style="background-image: url('avatar2.png')"></div>
     <div class="bitmoji" style="background-image: url('avatar3.png')"></div>
     <div class="bitmoji" style="background-image: url('avatar4.png')"></div>
@@ -311,5 +371,86 @@
       }
     }
   </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var avatars = document.querySelectorAll('.bitmoji-layout .bitmoji');
+  var banner  = document.querySelector('.bottom-banner img');
+  if (!avatars.length || !banner) return;
+
+  avatars.forEach(function(el) {
+    el.addEventListener('click', function() {
+      var bg = el.style.backgroundImage;
+      if (bg) {
+        var match = bg.match(/url\(["']?(.*?)["']?\)/);
+        if (match && match[1]) {
+          banner.src = match[1];
+        }
+      }
+    });
+  });
+});
+</script>
+
+
+  <button id="soundToggle" class="sound-toggle" style="display:none;" aria-label="Activer le son">🔈 Son</button>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const audio = document.getElementById('bgm');
+  const toggle = document.getElementById('soundToggle');
+  if (!audio) return;
+
+  // Essaie de démarrer en muet (autoplay policy friendly)
+  audio.muted = true;
+  const tryPlay = () => audio.play().catch(() => {});
+  tryPlay();
+
+  // Affiche le bouton si besoin
+  const showToggle = () => { if (toggle) toggle.style.display = 'inline-block'; };
+  const hideToggle = () => { if (toggle) toggle.style.display = 'none'; };
+
+  // Au premier geste utilisateur, on active le son si possible
+  const enableSound = () => {
+    audio.muted = false;
+    audio.play().then(() => {
+      hideToggle();
+      removeEnableListeners();
+    }).catch(() => {
+      // Si ça échoue, on garde le bouton visible
+      showToggle();
+    });
+  };
+  const removeEnableListeners = () => {
+    document.removeEventListener('click', enableSoundOnce);
+    document.removeEventListener('keydown', enableSoundOnce);
+    document.removeEventListener('touchstart', enableSoundOnce);
+  };
+  const enableSoundOnce = () => { enableSound(); };
+  document.addEventListener('click', enableSoundOnce, { once: true });
+  document.addEventListener('keydown', enableSoundOnce, { once: true });
+  document.addEventListener('touchstart', enableSoundOnce, { once: true });
+
+  // Gestion du bouton
+  if (toggle) {
+    toggle.addEventListener('click', function(){
+      if (audio.muted || audio.paused) {
+        enableSound();
+      } else {
+        audio.pause();
+        audio.muted = true;
+        showToggle();
+      }
+    });
+  }
+
+  // Si le son reste muet/pausé après 1s, on montre le bouton
+  setTimeout(() => {
+    if (audio.paused || audio.muted) showToggle();
+  }, 1000);
+});
+</script>
+
 </body>
 </html>
