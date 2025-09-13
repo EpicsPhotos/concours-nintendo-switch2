@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <title>Merci pour votre participation !</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    :root{
+      --nintendo-red:#E60012;
+      --fb-blue:#1877F2;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #fff;
+      text-align: center;
+      background: url('background.png') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 0;
+    }
+
+    .container { position: relative; z-index: 1; }
+
+    /* Sponsors banner at top */
+    .sponsors {
+      padding: 14px 20px;
+      background: rgba(255,255,255,0.15);
+      border-bottom: 2px solid rgba(255,255,255,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .sponsors p {
+      margin: 0;
+      font-size: 1.05rem;
+      color: #f0f0f0;
+    }
+    .sponsor-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .sponsor-logos img {
+      max-height: 60px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 6px;
+      padding: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    }
+
+    /* Nintendo-flavored hero */
+    .hero {
+      padding: 48px 20px 28px;
+    }
+    .hero h1 {
+      display: inline-block;
+      margin: 12px 0 10px;
+      padding: 10px 26px;
+      background: var(--nintendo-red);
+      color: #fff;
+      border-radius: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 800;
+      font-size: clamp(1.6rem, 4.8vw, 2.6rem);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+    .hero p {
+      margin: 12px auto 0;
+      max-width: 760px;
+      line-height: 1.55;
+      font-size: clamp(1rem, 2.6vw, 1.15rem);
+      color: #f5f5f5;
+    }
+
+    /* Card with info */
+    .card {
+      margin: 22px auto 36px;
+      padding: 18px 20px;
+      max-width: 860px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      text-align: left;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      color: #fff;
+      font-size: 1.2rem;
+    }
+    .checklist { margin: 0; padding-left: 18px; color:#f0f0f0; }
+    .checklist li { margin: 6px 0; }
+
+    /* CTA row */
+    .cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+    .btn {
+      border: none;
+      border-radius: 9999px;
+      padding: 12px 22px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-home {
+      background: #fff;
+      color: #000;
+    }
+    .btn-share {
+      background: var(--fb-blue);
+      color: #fff;
+    }
+    .btn-share:hover { background:#145dbf; }
+
+    footer {
+      opacity: .85;
+      font-size: .85rem;
+      padding: 18px 0 26px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sponsors">
+      <p>Ce concours est organisé par <strong>EB Games</strong> en partenariat officiel avec <strong>Nintendo</strong>.</p>
+      <div class="sponsor-logos">
+        <img src="eb_games.png" alt="EB Games">
+        <img src="nintendo_seal.png" alt="Nintendo Official Seal">
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1>Merci pour votre participation !</h1>
+      <p>Votre inscription a bien été prise en compte. Les gagnants seront contactés par e‑mail. En attendant, restez à l’affût : de nouvelles annonces Nintendo arrivent bientôt.</p>
+    </section>
+
+    <section class="card">
+      <h2>Et maintenant ?</h2>
+      <ul class="checklist">
+        <li>Vérifiez votre boîte mail (et vos spams) pour la confirmation d’inscription.</li>
+        <li>Suivez nos actualités pour ne rien manquer des prochaines sorties.</li>
+        <li>Partagez le concours avec vos amis pour augmenter l’engouement !</li>
+      </ul>
+
+      <div class="cta">
+        <a class="btn btn-home" href="/">Retour à l’accueil</a>
+        <a class="btn btn-share" href="#" onclick="alert('Partage Facebook à brancher');return false;">Partager sur Facebook</a>
+      </div>
+    </section>
+
+    <footer>© EB Games & Nintendo — Tous droits réservés.</footer>
+  </div>
+</body>
+</html>
